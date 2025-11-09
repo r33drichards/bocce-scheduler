@@ -13,49 +13,62 @@ import {
 } from '@ai-sdk/mcp';
 
 
-// Connect to an HTTP MCP server directly via the client transport config
-const minizinc = await experimental_createMCPClient({
-  transport: {
-    type: 'sse',
-    url: 'https://minizinc-mcp.up.railway.app/sse',
-  },
-});
+// Lazy initialization of MCP clients and agent
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let calAgent: any = null;
 
-const toolSetMinizinc = await minizinc.tools();
+async function getCalAgent() {
+  if (calAgent) {
+    return calAgent;
+  }
 
-const transport = new Experimental_StdioMCPTransport({
-  command: 'npx',
-  args: ['-y', 'github:r33drichards/caldav-mcp'],
-  env: {
-    "CALDAV_BASE_URL": "https://docker-radicale-production.up.railway.app",
-    "CALDAV_USERNAME": "rwendt1337@gmail.com",
-    "CALDAV_PASSWORD": process.env.CALDAV_PASSWORD || "#XZ#5N4B*ZvoBC",
-  },
-});
+  // Connect to an HTTP MCP server directly via the client transport config
+  const minizinc = await experimental_createMCPClient({
+    transport: {
+      type: 'sse',
+      url: 'https://minizinc-mcp.up.railway.app/sse',
+    },
+  });
 
-const caldav = await experimental_createMCPClient({
-  transport,
-});
+  const toolSetMinizinc = await minizinc.tools();
 
-const toolSetCaldav = await caldav.tools();
+  const transport = new Experimental_StdioMCPTransport({
+    command: 'npx',
+    args: ['-y', 'github:r33drichards/caldav-mcp'],
+    env: {
+      "CALDAV_BASE_URL": "https://docker-radicale-production.up.railway.app",
+      "CALDAV_USERNAME": "rwendt1337@gmail.com",
+      "CALDAV_PASSWORD": process.env.CALDAV_PASSWORD || "#XZ#5N4B*ZvoBC",
+    },
+  });
+
+  const caldav = await experimental_createMCPClient({
+    transport,
+  });
+
+  const toolSetCaldav = await caldav.tools();
 
 
-const tools = {
-  ...toolSetMinizinc,
-  ...toolSetCaldav,
-};
+  const tools = {
+    ...toolSetMinizinc,
+    ...toolSetCaldav,
+  };
 
 
-const calAgent = new Agent({
-  model: anthropic("claude-haiku-4-5-20251001"),
-  tools,
-  stopWhen: stepCountIs(1000),
-  system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. if using timeout, it should never be longer than 30 seconds."
-});
+  calAgent = new Agent({
+    model: anthropic("claude-haiku-4-5-20251001"),
+    tools,
+    stopWhen: stepCountIs(1000),
+    system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. if using timeout, it should never be longer than 30 seconds."
+  });
+
+  return calAgent;
+}
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
-  const result = calAgent.stream({
+  const agent = await getCalAgent();
+  const result = agent.stream({
     messages: convertToModelMessages(messages),
     providerOptions: {
       anthropic: {
