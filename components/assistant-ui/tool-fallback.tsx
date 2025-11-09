@@ -1,7 +1,18 @@
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
-import { useState, memo } from "react";
+import { useState, memo, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+
+// Truncate long strings for performance
+const truncateString = (str: string, maxLength: number = 1000): { text: string; isTruncated: boolean } => {
+  if (str.length <= maxLength) {
+    return { text: str, isTruncated: false };
+  }
+  return { 
+    text: str.slice(0, maxLength) + "...", 
+    isTruncated: true 
+  };
+};
 
 const ToolFallbackComponent: ToolCallMessagePartComponent = ({
   toolName,
@@ -9,7 +20,22 @@ const ToolFallbackComponent: ToolCallMessagePartComponent = ({
   result,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [showFullArgs, setShowFullArgs] = useState(false);
+  const [showFullResult, setShowFullResult] = useState(false);
   const isComplete = result !== undefined;
+
+  // Memoize formatted result to avoid re-stringifying on every render
+  const formattedResult = useMemo(() => {
+    if (result === undefined) return null;
+    return typeof result === "string" ? result : JSON.stringify(result, null, 2);
+  }, [result]);
+
+  // Truncate args and result for better performance
+  const truncatedArgs = useMemo(() => truncateString(argsText, 1000), [argsText]);
+  const truncatedResult = useMemo(() => {
+    if (!formattedResult) return { text: "", isTruncated: false };
+    return truncateString(formattedResult, 1000);
+  }, [formattedResult]);
 
   return (
     <div className="aui-tool-fallback-root mb-4 flex w-full flex-col gap-3 rounded-lg border py-3">
@@ -29,20 +55,34 @@ const ToolFallbackComponent: ToolCallMessagePartComponent = ({
       {!isCollapsed && (
         <div className="aui-tool-fallback-content flex flex-col gap-2 border-t pt-2">
           <div className="aui-tool-fallback-args-root px-4">
-            <pre className="aui-tool-fallback-args-value whitespace-pre-wrap">
-              {argsText}
+            <pre className="aui-tool-fallback-args-value whitespace-pre-wrap max-h-96 overflow-y-auto">
+              {showFullArgs ? argsText : truncatedArgs.text}
             </pre>
+            {truncatedArgs.isTruncated && (
+              <button
+                onClick={() => setShowFullArgs(!showFullArgs)}
+                className="mt-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                {showFullArgs ? "Show less" : "Show more..."}
+              </button>
+            )}
           </div>
           {result !== undefined && (
             <div className="aui-tool-fallback-result-root border-t border-dashed px-4 pt-2">
               <p className="aui-tool-fallback-result-header font-semibold">
                 Result:
               </p>
-              <pre className="aui-tool-fallback-result-content whitespace-pre-wrap">
-                {typeof result === "string"
-                  ? result
-                  : JSON.stringify(result, null, 2)}
+              <pre className="aui-tool-fallback-result-content whitespace-pre-wrap max-h-96 overflow-y-auto">
+                {showFullResult ? formattedResult : truncatedResult.text}
               </pre>
+              {truncatedResult.isTruncated && (
+                <button
+                  onClick={() => setShowFullResult(!showFullResult)}
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  {showFullResult ? "Show less" : "Show more..."}
+                </button>
+              )}
             </div>
           )}
         </div>
