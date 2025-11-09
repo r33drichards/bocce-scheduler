@@ -237,6 +237,19 @@ const MessageError: FC = () => {
   );
 };
 
+const ReasoningContent: FC<{ text: string }> = ({ text }) => {
+  return (
+    <details className="aui-reasoning-section mb-3 rounded-md border border-blue-500/30 bg-blue-50 dark:bg-blue-950/20">
+      <summary className="cursor-pointer px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100">
+        💭 View reasoning process
+      </summary>
+      <div className="border-t border-blue-500/20 px-4 py-3 text-sm leading-relaxed text-blue-900 dark:text-blue-200 whitespace-pre-wrap">
+        {text}
+      </div>
+    </details>
+  );
+};
+
 const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root asChild>
@@ -248,6 +261,7 @@ const AssistantMessage: FC = () => {
           <MessagePrimitive.Parts
             components={{
               Text: MarkdownText,
+              Reasoning: ReasoningContent,
               tools: { Fallback: ToolFallback },
             }}
           />

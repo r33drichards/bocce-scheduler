@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic, AnthropicProviderOptions } from "@ai-sdk/anthropic";
 import { streamText, UIMessage, convertToModelMessages } from "ai";
 import { Experimental_StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio';
 
@@ -47,7 +47,7 @@ const tools = {
 
 
 const calAgent = new Agent({
-  model: openai("gpt-5-nano"),
+  model: anthropic("claude-haiku-4-5-20251001"),
   tools,
   stopWhen: stepCountIs(1000),
 });
@@ -56,6 +56,11 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
   const result = calAgent.stream({
     messages: convertToModelMessages(messages),
+    providerOptions: {
+      anthropic: {
+        thinking: { type: 'enabled', budgetTokens: 12000 },
+      } satisfies AnthropicProviderOptions,
+    },
   });
 
   return result.toUIMessageStreamResponse();
