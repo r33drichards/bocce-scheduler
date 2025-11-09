@@ -19,7 +19,7 @@ import {
   ThreadPrimitive,
 } from "@assistant-ui/react";
 
-import type { FC } from "react";
+import React, { type FC } from "react";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
 
@@ -28,8 +28,6 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import {
-  ComposerAddAttachment,
-  ComposerAttachments,
   UserMessageAttachments,
 } from "@/components/assistant-ui/attachment";
 
@@ -108,80 +106,35 @@ const ThreadWelcome: FC = () => {
           </m.div>
         </div>
       </div>
-      <ThreadSuggestions />
     </div>
   );
 };
 
-const ThreadSuggestions: FC = () => {
-  return (
-    <div className="aui-thread-welcome-suggestions grid w-full gap-2 pb-4 @md:grid-cols-2">
-      {[
-        {
-          title: "What's the weather",
-          label: "in San Francisco?",
-          action: "What's the weather in San Francisco?",
-        },
-        {
-          title: "Explain React hooks",
-          label: "like useState and useEffect",
-          action: "Explain React hooks like useState and useEffect",
-        },
-        {
-          title: "Write a SQL query",
-          label: "to find top customers",
-          action: "Write a SQL query to find top customers",
-        },
-        {
-          title: "Create a meal plan",
-          label: "for healthy weight loss",
-          action: "Create a meal plan for healthy weight loss",
-        },
-      ].map((suggestedAction, index) => (
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ delay: 0.05 * index }}
-          key={`suggested-action-${suggestedAction.title}-${index}`}
-          className="aui-thread-welcome-suggestion-display [&:nth-child(n+3)]:hidden @md:[&:nth-child(n+3)]:block"
-        >
-          <ThreadPrimitive.Suggestion
-            prompt={suggestedAction.action}
-            send
-            asChild
-          >
-            <Button
-              variant="ghost"
-              className="aui-thread-welcome-suggestion h-auto w-full flex-1 flex-wrap items-start justify-start gap-1 rounded-3xl border px-5 py-4 text-left text-sm @md:flex-col dark:hover:bg-accent/60"
-              aria-label={suggestedAction.action}
-            >
-              <span className="aui-thread-welcome-suggestion-text-1 font-medium">
-                {suggestedAction.title}
-              </span>
-              <span className="aui-thread-welcome-suggestion-text-2 text-muted-foreground">
-                {suggestedAction.label}
-              </span>
-            </Button>
-          </ThreadPrimitive.Suggestion>
-        </m.div>
-      ))}
-    </div>
-  );
-};
 
 const Composer: FC = () => {
+  const handlePaste = (e: React.ClipboardEvent) => {
+    // Only allow text paste, prevent images/files
+    const text = e.clipboardData.getData('text/plain');
+    if (e.clipboardData.files.length > 0 || e.clipboardData.items.length > 1) {
+      e.preventDefault();
+      // If there's text, insert it manually
+      if (text) {
+        document.execCommand('insertText', false, text);
+      }
+    }
+  };
+
   return (
     <div className="aui-composer-wrapper sticky bottom-0 mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 overflow-visible rounded-t-3xl bg-background pb-4 md:pb-6">
       <ThreadScrollToBottom />
       <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col rounded-3xl border border-border bg-muted px-1 pt-2 shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),0_2px_5px_0px_rgba(0,0,0,0.06)] dark:border-muted-foreground/15">
-        <ComposerAttachments />
         <ComposerPrimitive.Input
           placeholder="Send a message..."
           className="aui-composer-input mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none placeholder:text-muted-foreground focus:outline-primary"
           rows={1}
           autoFocus
           aria-label="Message input"
+          onPaste={handlePaste}
         />
         <ComposerAction />
       </ComposerPrimitive.Root>
@@ -191,9 +144,7 @@ const Composer: FC = () => {
 
 const ComposerAction: FC = () => {
   return (
-    <div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-between">
-      <ComposerAddAttachment />
-
+    <div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-end">
       <ThreadPrimitive.If running={false}>
         <ComposerPrimitive.Send asChild>
           <TooltipIconButton
@@ -237,7 +188,7 @@ const MessageError: FC = () => {
   );
 };
 
-const ReasoningContent: FC<{ text: string }> = ({ text }) => {
+const ReasoningContentComponent: FC<{ text: string }> = ({ text }) => {
   return (
     <details className="aui-reasoning-section mb-3 rounded-md border border-blue-500/30 bg-blue-50 dark:bg-blue-950/20">
       <summary className="cursor-pointer px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100">
@@ -249,6 +200,10 @@ const ReasoningContent: FC<{ text: string }> = ({ text }) => {
     </details>
   );
 };
+
+ReasoningContentComponent.displayName = "ReasoningContent";
+
+const ReasoningContent = React.memo(ReasoningContentComponent);
 
 const AssistantMessage: FC = () => {
   return (

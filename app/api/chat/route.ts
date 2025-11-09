@@ -1,5 +1,5 @@
 import { anthropic, AnthropicProviderOptions } from "@ai-sdk/anthropic";
-import { streamText, UIMessage, convertToModelMessages } from "ai";
+import { UIMessage, convertToModelMessages } from "ai";
 import { Experimental_StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio';
 
 import { Experimental_Agent as Agent, stepCountIs } from 'ai';
@@ -50,7 +50,7 @@ const calAgent = new Agent({
   model: anthropic("claude-haiku-4-5-20251001"),
   tools,
   stopWhen: stepCountIs(1000),
-  system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it."
+  system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. dont use the timeout field for the solver."
 });
 
 export async function POST(req: Request) {

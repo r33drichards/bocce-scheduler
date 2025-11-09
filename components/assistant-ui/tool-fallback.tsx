@@ -1,9 +1,9 @@
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 
-export const ToolFallback: ToolCallMessagePartComponent = ({
+const ToolFallbackComponent: ToolCallMessagePartComponent = ({
   toolName,
   argsText,
   result,
@@ -50,3 +50,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
     </div>
   );
 };
+
+ToolFallbackComponent.displayName = "ToolFallback";
+
+export const ToolFallback = memo(ToolFallbackComponent);
