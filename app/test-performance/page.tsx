@@ -5,7 +5,7 @@ import { useState } from "react";
 
 // Generate large mock data to simulate performance issues
 const generateLargeData = (size: number) => {
-  const data: any = {};
+  const data: Record<string, string> = {};
   for (let i = 0; i < size; i++) {
     data[`field_${i}`] = `This is a long string with lots of data ${"x".repeat(100)} - item ${i}`;
   }
@@ -62,7 +62,7 @@ export default function TestPerformancePage() {
           <h2 className="font-bold mb-2">Optimizations Applied:</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Content truncated to 1000 characters by default</li>
-            <li>"Show more/less" buttons for full content</li>
+            <li>&quot;Show more/less&quot; buttons for full content</li>
             <li>useMemo caches expensive JSON.stringify operations</li>
             <li>max-h-96 height constraints with scrolling</li>
             <li>React.memo prevents unnecessary re-renders</li>
@@ -84,8 +84,6 @@ export default function TestPerformancePage() {
             toolName={tool.toolName}
             argsText={tool.argsText}
             result={tool.result}
-            part={{} as any}
-            status={{} as any}
           />
         ))}
       </div>
