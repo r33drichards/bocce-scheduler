@@ -14,10 +14,22 @@ const truncateString = (str: string, maxLength: number = 1000): { text: string; 
   };
 };
 
-const ToolFallbackComponent: ToolCallMessagePartComponent = ({
+// Standalone props interface for use outside assistant-ui
+interface ToolFallbackStandaloneProps {
+  toolName: string;
+  argsText: string;
+  result?: unknown;
+}
+
+// Internal component that handles the rendering logic
+const ToolFallbackUI = ({
   toolName,
   argsText,
   result,
+}: {
+  toolName: string;
+  argsText: string;
+  result?: unknown;
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [showFullArgs, setShowFullArgs] = useState(false);
@@ -91,6 +103,15 @@ const ToolFallbackComponent: ToolCallMessagePartComponent = ({
   );
 };
 
+// Component for use with assistant-ui framework
+const ToolFallbackComponent: ToolCallMessagePartComponent = (props) => {
+  return <ToolFallbackUI toolName={props.toolName} argsText={props.argsText} result={props.result} />;
+};
+
 ToolFallbackComponent.displayName = "ToolFallback";
 
+// Export for use with assistant-ui framework
 export const ToolFallback = memo(ToolFallbackComponent);
+
+// Export standalone version for use outside assistant-ui
+export const ToolFallbackStandalone = memo<ToolFallbackStandaloneProps>(ToolFallbackUI);
