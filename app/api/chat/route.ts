@@ -1,5 +1,11 @@
 import { openai } from "@ai-sdk/openai";
 import { streamText, UIMessage, convertToModelMessages } from "ai";
+import { Experimental_StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio';
+
+import { Experimental_Agent as Agent, stepCountIs } from 'ai';
+
+
+
 
 import {
   experimental_createMCPClient,
@@ -12,43 +18,44 @@ const minizinc = await experimental_createMCPClient({
   transport: {
     type: 'sse',
     url: 'https://minizinc-mcp.up.railway.app/sse',
-
-    // optional: configure headers
-    // headers: { Authorization: 'Bearer my-api-key' },
-
-    // optional: provide an OAuth client provider for automatic authorization
-    // authProvider: myOAuthClientProvider,
   },
 });
 
 const toolSetMinizinc = await minizinc.tools();
 
+const transport = new Experimental_StdioMCPTransport({
+  command: 'npx',
+  args: ['-y', 'github:r33drichards/caldav-mcp'],
+  env: {
+    "CALDAV_BASE_URL": "https://docker-radicale-production.up.railway.app",
+    "CALDAV_USERNAME": "rwendt1337@gmail.com",
+    "CALDAV_PASSWORD": process.env.CALDAV_PASSWORD || "#XZ#5N4B*ZvoBC",
+  },
+});
 
-// // Connect to a Server-Sent Events (SSE) MCP server directly via the client transport config
-// const clientThree = await experimental_createMCPClient({
-//   transport: {
-//     type: 'sse',
-//     url: 'http://localhost:3000/sse',
+const caldav = await experimental_createMCPClient({
+  transport,
+});
 
-//     // optional: configure headers
-//     // headers: { Authorization: 'Bearer my-api-key' },
-
-//     // optional: provide an OAuth client provider for automatic authorization
-//     // authProvider: myOAuthClientProvider,
-//   },
-// });
+const toolSetCaldav = await caldav.tools();
 
 
 const tools = {
   ...toolSetMinizinc,
+  ...toolSetCaldav,
 };
+
+
+const calAgent = new Agent({
+  model: openai("gpt-5-nano"),
+  tools,
+  stopWhen: stepCountIs(1000),
+});
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
-  const result = streamText({
-    model: openai("gpt-5-nano"),
+  const result = calAgent.stream({
     messages: convertToModelMessages(messages),
-    tools,
   });
 
   return result.toUIMessageStreamResponse();
