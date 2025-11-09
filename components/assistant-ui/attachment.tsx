@@ -73,6 +73,7 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
       alt="Image Preview"
       width={1}
       height={1}
+      loading="lazy"
       className={
         isLoaded
           ? "aui-attachment-preview-image-loaded block h-auto max-h-[80vh] w-auto max-w-full object-contain"
@@ -80,6 +81,7 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
       }
       onLoadingComplete={() => setIsLoaded(true)}
       priority={false}
+      quality={85}
     />
   );
 };
@@ -121,6 +123,7 @@ const AttachmentThumb: FC = () => {
         src={src}
         alt="Attachment preview"
         className="aui-attachment-tile-image object-cover"
+        loading="lazy"
       />
       <AvatarFallback delayMs={isImage ? 200 : 0}>
         <FileText className="aui-attachment-tile-fallback-icon size-8 text-muted-foreground" />
