@@ -50,6 +50,7 @@ const calAgent = new Agent({
   model: anthropic("claude-haiku-4-5-20251001"),
   tools,
   stopWhen: stepCountIs(1000),
+  system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it."
 });
 
 export async function POST(req: Request) {

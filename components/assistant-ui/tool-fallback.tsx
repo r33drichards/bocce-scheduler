@@ -1,5 +1,5 @@
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -9,12 +9,18 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
   result,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const isComplete = result !== undefined;
+
   return (
     <div className="aui-tool-fallback-root mb-4 flex w-full flex-col gap-3 rounded-lg border py-3">
       <div className="aui-tool-fallback-header flex items-center gap-2 px-4">
-        <CheckIcon className="aui-tool-fallback-icon size-4" />
+        {isComplete ? (
+          <CheckIcon className="aui-tool-fallback-icon size-4" />
+        ) : (
+          <Loader2Icon className="aui-tool-fallback-icon size-4 animate-spin" />
+        )}
         <p className="aui-tool-fallback-title flex-grow">
-          Used tool: <b>{toolName}</b>
+          {isComplete ? "Used" : "Using"} tool: <b>{toolName}</b>
         </p>
         <Button onClick={() => setIsCollapsed(!isCollapsed)}>
           {isCollapsed ? <ChevronUpIcon /> : <ChevronDownIcon />}
