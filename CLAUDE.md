@@ -93,7 +93,7 @@ TypeScript configured with `@/*` aliasing to repository root:
 
 ## Important Notes
 
-- The CalDAV password is currently hardcoded in `app/api/chat/route.ts` as a fallback - this should be moved to environment variables only
+- The CalDAV password is currently hardcoded in `app/api/chat/route.ts` as a fallback - this is okay because its not secret information really.
 - MCP clients are created at module initialization (top-level await), so server startup may be slower
 - The agent uses extended thinking with a 12k token budget for complex scheduling tasks
 - The `mcp-tools-ref.ts` file in the root is excluded from TypeScript compilation (likely reference documentation)
