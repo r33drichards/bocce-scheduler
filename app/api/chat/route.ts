@@ -71,7 +71,7 @@ async function getCalAgent() {
     model: anthropic("claude-haiku-4-5-20251001"),
     tools,
     stopWhen: stepCountIs(1000),
-    system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. if using timeout, it should never be longer than 30 seconds."
+    system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. always use timeout with minizinc, always use 30 second timeout."
   });
 
   return calAgent;
