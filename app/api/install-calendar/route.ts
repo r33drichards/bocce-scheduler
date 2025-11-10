@@ -6,14 +6,14 @@ export async function GET() {
     const filePath = join(process.cwd(), "bocce-calendar.mobileconfig");
     const fileContent = await readFile(filePath);
 
-    return new Response(fileContent, {
+    return new Response(fileContent.buffer.slice(fileContent.byteOffset, fileContent.byteOffset + fileContent.byteLength), {
       headers: {
         "Content-Type": "application/x-apple-aspen-config",
         "Content-Disposition":
           'attachment; filename="bocce-calendar.mobileconfig"',
       },
     });
-  } catch (error) {
+  } catch {
     return new Response("Configuration file not found", { status: 404 });
   }
 }
