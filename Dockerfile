@@ -16,7 +16,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=bocce-scheduler-pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -27,7 +27,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Install all dependencies (including devDependencies) for build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=bocce-scheduler-pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build the Next.js app
 # This will generate the standalone output
