@@ -93,7 +93,7 @@ const ThreadWelcome: FC = () => {
             exit={{ opacity: 0, y: 10 }}
             className="aui-thread-welcome-message-motion-1 text-2xl font-semibold"
           >
-            Write your desired bocce tournament schedule in natural language, and connect to your calendar app to view the results.
+            Schedule your bocce tournament in plain language.
           </m.div>
           <m.div
             initial={{ opacity: 0, y: 10 }}
