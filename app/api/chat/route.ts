@@ -51,7 +51,7 @@ async function getCalAgent() {
   // Connect to Time MCP server for timezone and time conversion capabilities
   const timeTransport = new Experimental_StdioMCPTransport({
     command: 'python3',
-    args: ['-m', 'mcp_server_time'],
+    args: ['-m', 'mcp_server_time', '--local-timezone=America/New_York'],
   });
 
   const timeMcp = await experimental_createMCPClient({
