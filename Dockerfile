@@ -3,17 +3,20 @@
 
 FROM node:22-slim AS base
 
+# Enable pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN npm ci --omit=dev && \
-    # Cache npx packages that will be needed at runtime
-    npm cache clean --force
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -24,11 +27,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Install all dependencies (including devDependencies) for build
-RUN npm ci
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build the Next.js app
 # This will generate the standalone output
-RUN npm run build
+RUN pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
