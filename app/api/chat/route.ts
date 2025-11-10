@@ -48,10 +48,22 @@ async function getCalAgent() {
 
   const toolSetCaldav = await caldav.tools();
 
+  // Connect to Time MCP server for timezone and time conversion capabilities
+  const timeTransport = new Experimental_StdioMCPTransport({
+    command: 'python3',
+    args: ['-m', 'mcp_server_time', '--local-timezone=America/New_York'],
+  });
+
+  const timeMcp = await experimental_createMCPClient({
+    transport: timeTransport,
+  });
+
+  const toolSetTime = await timeMcp.tools();
 
   const tools = {
     ...toolSetMinizinc,
     ...toolSetCaldav,
+    ...toolSetTime,
   };
 
 

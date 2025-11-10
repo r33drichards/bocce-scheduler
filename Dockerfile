@@ -40,11 +40,14 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV=production
 
-# Install git (required by MCP server)
+# Install git (required by MCP server) and Python (for Time MCP server)
 RUN apt-get update && \
-    apt-get install -y git && \
+    apt-get install -y git python3 python3-pip python3-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Time MCP server
+RUN pip3 install --break-system-packages mcp-server-time
 
 # Create a non-root user with home directory
 RUN addgroup --system --gid 1001 nodejs && \
