@@ -112,7 +112,7 @@ const ThreadWelcome: FC = () => {
             className="aui-thread-welcome-message-motion-3 mt-6 flex flex-col gap-3"
           >
             <a
-              href="webcal://rwendt1337%40gmail.com:%23XZ%23PM4B*ZvoBC@docker-radicale-production.up.railway.app/rwendt1337@gmail.com/bocce.ics/"
+              href="webcal://rwendt1337%40gmail.com:%23XZ%235N4B%2AZvoBC@docker-radicale-production.up.railway.app/rwendt1337%40gmail.com/470dd3b7-a61a-b0da-587b-82f593b06d4b/"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
             >
               📅 Subscribe to Bocce Calendar (One-Click, Read-Only)
