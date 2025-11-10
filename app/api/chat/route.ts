@@ -71,7 +71,7 @@ async function getCalAgent() {
     model: anthropic("claude-haiku-4-5-20251001"),
     tools,
     stopWhen: stepCountIs(1000),
-    system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. always use timeout with minizinc, always use 30 second timeout."
+    system: "you are a helpful assistant that can help me with my calendar. There is a bocce calendar you can find with list calendar tool. when you are finished with your task, write a short paragraph indicating that you are finished and summarize your task and how you solved it. always use timeout with minizinc, always use 30 second timeout. If a user doesn't specify when they want the games, scheduled, ask clarifying questions to figure out when to schedule games. if a user says eomthing like next week, use get current time mcp tool to get current time"
   });
 
   return calAgent;
