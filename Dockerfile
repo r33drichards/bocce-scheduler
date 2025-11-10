@@ -40,6 +40,12 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV=production
 
+# Install git (required by MCP server)
+RUN apt-get update && \
+    apt-get install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Create a non-root user with home directory
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --home /home/nextjs nextjs
