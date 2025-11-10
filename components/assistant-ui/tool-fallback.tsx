@@ -1,6 +1,6 @@
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
-import { useState, memo, useMemo } from "react";
+import { useState, memo, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 // Truncate long strings for performance
@@ -8,10 +8,19 @@ const truncateString = (str: string, maxLength: number = 1000): { text: string; 
   if (str.length <= maxLength) {
     return { text: str, isTruncated: false };
   }
-  return { 
-    text: str.slice(0, maxLength) + "...", 
-    isTruncated: true 
+  return {
+    text: str.slice(0, maxLength) + "...",
+    isTruncated: true
   };
+};
+
+// Format elapsed time in milliseconds to a readable string
+const formatElapsedTime = (ms: number): string => {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  }
+  const seconds = (ms / 1000).toFixed(2);
+  return `${seconds}s`;
 };
 
 // Standalone props interface for use outside assistant-ui
@@ -36,6 +45,18 @@ const ToolFallbackUI = ({
   const [showFullResult, setShowFullResult] = useState(false);
   const isComplete = result !== undefined;
 
+  // Track elapsed time
+  const startTimeRef = useRef<number>(Date.now());
+  const [elapsedTime, setElapsedTime] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isComplete && elapsedTime === null) {
+      // Calculate elapsed time when result becomes available
+      const elapsed = Date.now() - startTimeRef.current;
+      setElapsedTime(elapsed);
+    }
+  }, [isComplete, elapsedTime]);
+
   // Memoize formatted result to avoid re-stringifying on every render
   const formattedResult = useMemo(() => {
     if (result === undefined) return null;
@@ -59,6 +80,11 @@ const ToolFallbackUI = ({
         )}
         <p className="aui-tool-fallback-title flex-grow">
           {isComplete ? "Used" : "Using"} tool: <b>{toolName}</b>
+          {elapsedTime !== null && (
+            <span className="ml-2 text-sm text-muted-foreground font-normal">
+              ({formatElapsedTime(elapsedTime)})
+            </span>
+          )}
         </p>
         <Button onClick={() => setIsCollapsed(!isCollapsed)}>
           {isCollapsed ? <ChevronUpIcon /> : <ChevronDownIcon />}
