@@ -6,7 +6,7 @@ export async function GET() {
     const filePath = join(process.cwd(), "bocce-calendar.mobileconfig");
     const fileContent = await readFile(filePath);
 
-    return new Response(fileContent.buffer.slice(fileContent.byteOffset, fileContent.byteOffset + fileContent.byteLength), {
+    return new Response(new Uint8Array(fileContent), {
       headers: {
         "Content-Type": "application/x-apple-aspen-config",
         "Content-Disposition":
