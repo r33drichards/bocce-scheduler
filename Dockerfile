@@ -40,12 +40,15 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV=production
 
-# Create a non-root user
+# Create a non-root user with home directory
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 --home /home/nextjs nextjs
 
 # Set the correct permissions for prerender cache
 RUN mkdir .next && chown nextjs:nodejs .next
+
+# Create npm cache directory for nextjs user
+RUN mkdir -p /home/nextjs/.npm && chown -R nextjs:nodejs /home/nextjs
 
 # Copy the standalone build output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
